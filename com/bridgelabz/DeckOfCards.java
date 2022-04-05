@@ -1,72 +1,98 @@
 package com.bridgelabz;
-import java.util.ArrayList;
-import java.util.Scanner;
 
-public class DeckOfCards
+
+public class DeckOfCards extends Players
 {
-    Scanner scanner = new Scanner(System.in);
-    public ArrayList<String> cardsDeck = new ArrayList<String>();
+    private int[] freqCount = new int[4];
+    private String[] suits = { "Clubs", "Diamonds", "Hearts", "Spades" };
+    private String[] ranks = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace" };
+    int n = 4 * 13;
 
-    public ArrayList<String> makeADeck() {
-        String[] suits = {"Clubs", "Diamonds", "Hearts", "Spades"};
-        String[] ranks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "King", "Queen", "Ace"};
-        int numOfCards = suits.length * ranks.length;
-        System.out.println("Number of cards in the deck:" + numOfCards);
-
-        for (int i = 0; i < ranks.length; i++) {
-            for (int j = 0; j < suits.length; j++) {
-                cardsDeck.add(ranks[i] + "->" + suits[j]);
+    public String[] deckInitialize()
+    {
+        String[] deck = new String[this.n];
+        for (int i = 0; i < 13; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                deck[4 * i + j] = ranks[i] + " of " + suits[j];
             }
         }
-        toDisplay(cardsDeck);
-        return cardsDeck;
+        deck = shuffleCard(deck);
+        return deck;
     }
-
-
-    public static void toshuffle(ArrayList<String> cardsDeck) {
-        System.out.println("shuffling the cards before Distribution");
-        ArrayList<String> temp = new ArrayList<String>();
-        while (!cardsDeck.isEmpty()) {
-            int loc = (int) (Math.random() * cardsDeck.size());
-            temp.add(cardsDeck.get(loc));
-            cardsDeck.remove(loc);
+    public String[] shuffleCard(String[] deck)
+    {
+        for (int i = 0; i < n; i++) {
+            int r = i + (int) (Math.random() * (n - i));
+            String temp = deck[r];
+            deck[r] = deck[i];
+            deck[i] = temp;
         }
-        cardsDeck = temp;
-        toDisplay(cardsDeck);
+        return deck;
     }
-
-    private static void toDisplay(ArrayList<String> cardsDeck) {
-        System.out.println("Cards in Deck:");
-        for (String element : cardsDeck) {
-            System.out.print("\t" + element);
+    int[] nineCardsIndex() {
+        int[] cardIndex = { 52, 52, 52, 52, 52, 52, 52, 52, 52 }; //Initialize array with numbers
+        int i = 0;
+        int min = 0;
+        int max = 51;
+        while (i < 9) {
+            int condition = 0;
+            int randomIndex = (int) Math.floor(Math.random() * (max - min) + min);
+            for (int j = 0; j < cardIndex.length; j++) {
+                if (randomIndex == cardIndex[j]) {
+                    condition = 1;
+                    break;
+                }
+            }
+            if (condition == 0) {
+                cardIndex[i] = randomIndex;
+                i += 1;
+            }
+        }
+        return cardIndex;
+    }
+    public void distribution() {
+       String[] player = playerSequence();
+        String[] deck = deckInitialize();
+        int[] cardIndex = nineCardsIndex();
+        System.out.println(cardIndex);
+        for (int i = 1; i < player.length + 1; i++) {
+            System.out.println("Player " + player[i - 1] + " Cards :");
+            for (int j = i - 1; j < cardIndex.length; j = j + player.length) {
+                System.out.printf("|| %s    ", deck[j]);
+            }
+            System.out.println();
+            int k = 0;
+            for(int count: freqCount) {
+                System.out.print(suits[k]+ ":" + count + "  ");
+                k++;
+            }
+            freqCount = new int[4];
+            System.out.println();
         }
     }
-
-    private void noOfPlayers() {
-        System.out.println("\n Enter number of players minimum 2 , maximum 4");
-        int player = scanner.nextInt();
-        if (player >= 2 && player <= 4) {
-            System.out.println(player + "  players will  play the game");
-            sequenceOfPlay(player);
-
-        } else {
-            System.out.println("please enter number of players in the Range");
-            this.noOfPlayers();
+    public void freqCounter(String deck) {
+        String[] splitDeck = deck.split(" ");
+        for(String suit: splitDeck) {
+            if(suit.equals("Clubs")) {
+                freqCount[0]++;
+            }
+            if(suit.equals("Diamonds")) {
+                freqCount[1]++;
+            }
+            if(suit.equals("Hearts")) {
+                freqCount[2]++;
+            }
+            if(suit.equals("Spades")) {
+                freqCount[3]++;
+            }
         }
     }
-
-    public void sequenceOfPlay(int player) {
-        for (int i = 1; i < player; i++) {
-            System.out.println("Player " + i + " Getting card:");
-            toshuffle(cardsDeck);
-        }
-    }
-
     public static void main(String[] args) {
-        System.out.println("Welcome to Deck of Cards Program");
-        DeckOfCards deck = new DeckOfCards();
-        deck.makeADeck();
-        deck.noOfPlayers();
+        DeckOfCards deckOfCards = new DeckOfCards();
+        deckOfCards.distribution();
+        // String[] deck = deckOfCards.deckInitialize();
     }
 
 }
